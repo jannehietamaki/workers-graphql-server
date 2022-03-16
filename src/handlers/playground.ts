@@ -1,4 +1,6 @@
-const html = (baseEndpoint) => `
+import { GqlHandlerOptions } from './index.d'
+
+const html = (baseEndpoint: string) => `
 <!DOCTYPE html>
 <html>
   <head>
@@ -490,9 +492,8 @@ const html = (baseEndpoint) => `
   </body>
 </html>
 `
-
 const headers = { 'Content-Type': 'text/html' }
-const handler = (request, { baseEndpoint }) =>
+const handler = (request: Request, { baseEndpoint }: GqlHandlerOptions) =>
   new Response(html(baseEndpoint), { headers })
 
-module.exports = handler
+export default handler

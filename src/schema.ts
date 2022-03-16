@@ -1,6 +1,6 @@
-const { gql } = require('apollo-server-cloudflare')
+import { gql } from 'apollo-server-cloudflare'
 
-module.exports = gql`
+export default gql`
   type PokemonSprites {
     front_default: String!
     front_shiny: String!

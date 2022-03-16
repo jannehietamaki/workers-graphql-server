@@ -1,25 +1,29 @@
-const apollo = require('./handlers/apollo')
-const playground = require('./handlers/playground')
-const setCors = require('./utils/setCors')
+import apollo from './handlers/apollo'
+import playground from './handlers/playground'
+import setCors from './utils/setCors'
+import { GqlHandlerOptions } from './handlers/index.d'
+const { Buffer } = require('buffer')
 
-const graphQLOptions = {
+global.Buffer = Buffer
+
+const graphQLOptions: GqlHandlerOptions = {
   // Set the path for the GraphQL server
-  baseEndpoint: '/',
+  baseEndpoint: '/graphql',
 
   // Set the path for the GraphQL playground
   // This option can be removed to disable the playground route
-  playgroundEndpoint: '/___graphql',
+  playgroundEndpoint: '/',
 
   // When a request's path isn't matched, forward it to the origin
-  forwardUnmatchedRequestsToOrigin: false,
+  forwardUnmatchedRequestsToOrigin: true,
 
   // Enable debug mode to return script errors directly in browser
-  debug: false,
+  debug: process.env.NODE_ENV !== 'production',
 
   // Enable CORS headers on GraphQL requests
   // Set to `true` for defaults (see `utils/setCors`),
   // or pass an object to configure each header
-  cors: true,
+  cors: {},
   // cors: {
   //   allowCredentials: 'true',
   //   allowHeaders: 'Content-type',
@@ -33,8 +37,7 @@ const graphQLOptions = {
   // work! See the project README for more information.
   kvCache: false,
 }
-
-const handleRequest = async (request) => {
+export async function handleRequest(request: Request): Promise<Response> {
   const url = new URL(request.url)
   try {
     if (url.pathname === graphQLOptions.baseEndpoint) {
@@ -52,17 +55,14 @@ const handleRequest = async (request) => {
     ) {
       return playground(request, graphQLOptions)
     } else if (graphQLOptions.forwardUnmatchedRequestsToOrigin) {
-      return fetch(request)
+      return await fetch(request)
     } else {
       return new Response('Not found', { status: 404 })
     }
   } catch (err) {
+    console.log(err)
     return new Response(graphQLOptions.debug ? err : 'Something went wrong', {
       status: 500,
     })
   }
 }
-
-addEventListener('fetch', (event) => {
-  event.respondWith(handleRequest(event.request))
-})

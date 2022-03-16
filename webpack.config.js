@@ -1,22 +1,45 @@
-// DO NOT convert to ES6
-// wranglerjs/mod.rs can't handle it
-
 const path = require('path')
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 module.exports = {
-  context: path.resolve(__dirname, './'),
+  entry: './src/index.ts',
   target: 'webworker',
+  output: {
+    filename: 'worker.js',
+    path: path.join(__dirname, 'dist'),
+  },
+  devtool: 'source-map',
   mode: 'production',
-  optimization: {
-    usedExports: true,
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      // hack to get apollo to compile
+      fs: path.resolve(__dirname, './src/utils/empty.ts'),
+      busboy: path.resolve(__dirname, './src/utils/empty.ts'),
+      buffer: path.resolve(__dirname, './src/utils/empty.ts'),
+      crypto: path.resolve(__dirname, './src/utils/empty.ts'),
+      zlib: path.resolve(__dirname, './src/utils/empty.ts'),
+      os: path.resolve(__dirname, './src/utils/empty.ts'),
+      https: path.resolve(__dirname, './src/utils/empty.ts'),
+    },
   },
   module: {
     rules: [
       {
-        include: /node_modules/,
-        test: /\.mjs$/,
-        type: 'javascript/auto',
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          transpileOnly: true,
+        },
       },
+      // { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
     ],
   },
+  optimization: {
+    usedExports: true,
+  },
+  plugins: [
+    // new BundleAnalyzerPlugin()
+  ],
 }
