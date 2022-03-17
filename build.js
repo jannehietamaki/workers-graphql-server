@@ -11,6 +11,8 @@ try {
     plugins: [NodeModulesPolyfillPlugin()],
     bundle: true,
     sourcemap: true,
+    treeShaking: true,
+    minify: true,
     format: 'esm',
     target: 'esnext',
     entryPoints: [path.join(__dirname, 'src', 'index.ts')],
